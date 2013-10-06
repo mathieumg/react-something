@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Bootstrap 101 Template</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Bootstrap -->
+    <link href="css/bootstrap.min.css" rel="stylesheet" media="screen">
+
+    <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+      <script src="../../assets/js/html5shiv.js"></script>
+      <script src="../../assets/js/respond.min.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div id="mountpoint"></div>
+
+    <script type="text/jsx">
+      /** @jsx React.DOM */
+      var MenuButton = React.createClass({
+        buttonAction: function () {
+          this.props.onClick(this.props.switchView)
+        },
+
+        render: function () {
+          return (
+            <div class="col-xs-12">
+              <button type="button" class="btn btn-default btn-lg btn-block" onClick={this.buttonAction}>{this.props.children}</button>
+            </div>
+          );
+        }
+      });
+
+      var ViewWrapper = React.createClass({
+        render: function () {
+          return (
+            <div class="container">
+              {this.props.children}
+            </div>
+          );
+        }
+      });
+
+      var MenuView = React.createClass({
+        render: function() {
+          return (
+            <div class="row">
+              <MenuButton onClick={this.props.onClick} switchView={'game'}>New game</MenuButton>
+              <MenuButton onClick={this.props.onClick} switchView={'none'}>Exit</MenuButton>
+            </div>
+          );
+        }
+      });
+
+      var GameView = React.createClass({
+        tick: function (dT) {
+          console.log('Ticking! ' + dT);
+
+          var dX = dT,
+              dY = dT,
+              newAntRotation = this.state.antRotation,
+              newAntX = this.state.antX,
+              newAntY = this.state.antY;
+
+
+          if (Math.random(1) < this.state.antWanderChance) {
+            dX += Math.random(-1, 1) * 100;
+          }
+          else {
+            dX += Math.random(1.5) * 100;
+          }
+          
+          if (Math.random(1) < this.state.antWanderChance) {
+            dY += Math.random(-1, 1) * 300;
+          }
+          else {
+            dY += Math.random(1.5) * 300;
+          }
+
+          // Respect speed.
+          dX *= this.state.antSpeed / 1000;
+          dY *= this.state.antSpeed / 1000;
+
+          newAntRotation += (dX / dY) * (this.state.antSpeed / 1000);
+
+          newAntX += dX;
+          newAntY += dY;
+
+          // Don't go off-bounds.
+          newAntX %= this.state.canvasWidth;
+          newAntY %= this.state.canvasHeight;
+
+          this.setState({
+            antX: newAntX,
+            antY: newAntY,
+            antRotation: newAntRotation
+          })
+
+          this.draw();
+        },
+
+        draw: function () {
+            var ctx = this.state.context;
+
+            // Clear.
+            ctx.clearRect(0, 0, this.state.canvasWidth, this.state.canvasHeight);
+
+            // Background.
+            ctx.drawImage(this.state.bgImg, 0, 0);
+
+            // Ant.
+            ctx.save();
+            ctx.translate(this.state.antX, this.state.antY);
+            ctx.scale(this.state.antScale, this.state.antScale);
+            ctx.rotate(this.state.antRotation);
+            ctx.drawImage(this.state.antImg, 0, 0);
+            ctx.restore();
+        },
+
+        getInitialState: function () {
+          return ({
+            canvasWidth: 480,
+            canvasHeight: 720,
+            bgImg: new Image(),
+            antImg: new Image(),
+            context: null,
+            antX: 0,
+            antY: 0,
+            antScale: 0.25,
+            antRotation: Math.PI / 2,
+            antSpeed: 100,
+            antWanderChance: 0.92,
+            time: new Date()
+          });
+        },
+
+        componentDidMount: function() {
+          var canvas = this.refs.canvas.getDOMNode();
+          if (canvas.getContext) {
+            var ctx = canvas.getContext("2d");     
+            ctx.globalCompositeOperation = 'source-over';
+            var self = this;
+            this.setState({
+              context: ctx
+            });
+
+            this.state.bgImg.src = "img/ground.jpg";
+            this.state.antImg.src = "img/ant.png";
+
+            setInterval(function() {
+              var time = new Date();
+              var dT = Math.abs(time - self.state.time);
+              self.setState({
+                time: time
+              });
+              self.tick(dT)
+            }, 50);
+          }
+        },
+
+        render: function() {
+          return <canvas ref="canvas" width={this.state.canvasWidth} height={this.state.canvasHeight}></canvas>;
+        }
+      });
+
+      var ViewManager = React.createClass({
+        updateView: function(newView) {
+          this.setState({currentView: newView});
+        },
+
+        getInitialState: function() {
+          return ({
+            currentView: 'none'
+          });
+        },
+
+        render: function() {
+          switch(this.state.currentView) {
+            case 'game':
+              return <GameView />;
+
+            case 'menu':
+            default:
+              return <ViewWrapper><MenuView onClick={this.updateView} /></ViewWrapper>;
+          }
+        }
+      });
+
+      var App = React.createClass({
+        render: function() {
+          return (
+            <ViewManager />
+          );
+        }
+      });
+
+      React.renderComponent(
+        <App />,
+        document.getElementById('mountpoint')
+      );
+    </script>
+
+    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <script src="js/jquery.js"></script>
+    <!-- Include all compiled plugins (below), or include individual files as needed -->
+    <script src="js/bootstrap.min.js"></script>
+    <script src="js/react-0.4.1.js"></script>
+    <script src="js/JSXTransformer-0.4.1.js"></script>
+  </body>
+</html>
