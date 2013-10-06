@@ -62,18 +62,22 @@ public class MainActivity extends Activity implements OnHoverListener {
 		switch (e.getActionMasked()) {
 		case MotionEvent.ACTION_HOVER_ENTER:
 			//text.setText("ACTION_HOVER_ENTER");
+			System.out.println("ACTION_HOVER_ENTER");
 			break;
 		case MotionEvent.ACTION_HOVER_MOVE:
 			//text.setText("ACTION_HOVER_MOVE");
+			System.out.println("ACTION_HOVER_MOVE");
 			break;
 		case MotionEvent.ACTION_HOVER_EXIT:
+
+			System.out.println("ACTION_HOVER_EXIT");
 			//text.setText("ACTION_HOVER_EXIT");
 			break;
 		
 		}
 		
 		//text.setText(text.getText() + " - X: " + e.getX() + " - Y: " + e.getY());
-		
+		dispatchGenericMotionEvent(e);
 		
 		
 		return true;

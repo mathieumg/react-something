@@ -1,0 +1,89 @@
+<html>
+ <head>
+ 
+  <script type="application/javascript">
+  var largeurCanvas = 600;
+  var hauteurCanvas = 600;
+  var dx = Math.random(-1, 1);
+  var dy = Math.random(-1, 1);
+  var x;
+  var y;
+ 
+  var WANDER_CHANCE = .92;
+ 
+ 
+  function step() {
+    if (Math.random(1) > WANDER_CHANCE) {
+	dx += Math.random(-1, 1);
+	}
+	else {
+	dx += Math.random(1.5);
+	}
+    if (Math.random(1) > WANDER_CHANCE) {
+	dy += Math.random(-1, 1);
+	}
+	else {
+	dy += Math.random(1.5);
+	}
+     
+    // Bounding limits, bounce off of edge
+    if (x<2) dx = 1;
+    if (x>largeurCanvas-2) dx = -1;
+    if (y<2) dy = 1;
+    if (y>hauteurCanvas-2) dy = -1;
+    // Speed limit
+    dx = Math.min(dx, 1);
+    dx = Math.max(dx, -1);
+    dy = Math.min(dy, 1);
+    dy = Math.max(dy, -1);
+    // Move
+    x += dx;
+    y += dy;
+  }
+
+  
+  
+  
+var bg = new Image();
+var ant = new Image();
+var earth = new Image();
+function init(){
+  bg.src = 'http://fc04.deviantart.net/images/i/2003/39/d/c/Dirt___Ground_Cracks.jpg';
+  ant.src = 'http://www.clker.com/cliparts/0/5/2/d/11954389722123324306Andy_-_ant.svg.med.png';
+  //earth.src = 'https://mdn.mozillademos.org/files/1429/Canvas_earth.png';
+  setInterval(draw,50);
+}
+
+function draw() {
+  var ctx = document.getElementById('canvas').getContext('2d');
+
+  ctx.globalCompositeOperation = 'source-over';
+  ctx.clearRect(0,0,300,300); // clear canvas
+  
+
+
+  // Background
+  ctx.save();
+  ctx.translate(150,150);
+  ctx.drawImage(bg,0,0);
+  
+
+  // ant
+  ctx.save();
+  //step();
+  var time = new Date();
+  ctx.translate(time.getMilliseconds(),0);
+  ctx.scale(0.25,0.25);
+  ctx.rotate( Math.PI/4);
+  ctx.drawImage(ant,0,0);
+  ctx.restore();
+  ctx.restore();
+ 
+}
+  </script>
+ </head>
+ <body onload="init();">
+   <canvas id="canvas" width="600" height="600"></canvas>
+ </body>
+</html>
+    
